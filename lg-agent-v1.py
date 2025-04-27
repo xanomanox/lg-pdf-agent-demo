@@ -12,6 +12,7 @@ use langgraph as the agent framework for the following Agent capabilities:
 '''
 
 import os
+import json
 import pathlib
 import openai
 from pypdf import PdfReader
@@ -78,7 +79,7 @@ def read_pdfs_node(state):
     return state
 
 
-# -- Node 2: Extract Abstract and Tags --
+# -- Node 2: Extract Abstract and Tags with JSON blocks--
 def analyze_papers_node(state):
     updated_papers = []
     for paper in state["papers"]:
@@ -93,8 +94,21 @@ def analyze_papers_node(state):
             f"{paper['text'][:3000]}"
         )
         response = llm.invoke(prompt)
-        paper["analysis"] = response.content
+        
+        try:
+            metadata = json.loads(response.content)
+        except json.JSONDecodeError:
+            print(f"Warning: Failed to parse JSON for {paper['file_path']}")
+            metadata = {
+                "title": "Unknown Title",
+                "first_author": "Unknown Author",
+                "abstract_summary": "No summary available.",
+                "tags": []
+            }
+
+        paper["metadata"] = metadata
         updated_papers.append(paper)
+
     state["papers"] = updated_papers
     return state
 
