@@ -83,12 +83,14 @@ def analyze_papers_node(state):
     updated_papers = []
     for paper in state["papers"]:
         prompt = (
-            "You are reading the first few pages of a scientific paper. Please extract the following:\n"
-            "1. Title of the paper (exact if possible)\n"
-            "2. Name of the first listed author, and insert 'et al' to represent any additional authors\n"
-            "3. A one-sentence distilled summary of the Abstract section\n"
-            "4. 3–5 meaningful tags categorizing the paper (comma separated)\n\n"
-            f"Paper Text:\n{paper['text'][:3000]}"
+            "You are reading the first few pages of a scientific paper.\n"
+            "Extract the following fields and respond ONLY as a JSON object with these exact keys:\n"
+            "- title (string)\n"
+            "- first_author (string)\n"
+            "- abstract_summary (one sentence string)\n"
+            "- tags (list of strings)\n\n"
+            "Paper Text:\n"
+            f"{paper['text'][:3000]}"
         )
         response = llm.invoke(prompt)
         paper["analysis"] = response.content
@@ -96,15 +98,20 @@ def analyze_papers_node(state):
     state["papers"] = updated_papers
     return state
 
-# -- Node 3: Generate Markdown Listing --
+# -- Node 3: Generate Markdown Listing using JSON keys --
 def generate_markdown_node(state):
     md_lines = ["# Papers Summary\n"]
     for paper in state["papers"]:
         filename = pathlib.Path(paper["file_path"]).name
         shortcut = f"[{filename}]({paper['file_path']})"
-        md_lines.append(f"## {shortcut}\n")
-        md_lines.append(paper["analysis"])
+
+        metadata = paper["metadata"]
+        md_lines.append(f"## {metadata['title']} — {metadata['first_author']}\n")
+        md_lines.append(f"**File:** {shortcut}\n")
+        md_lines.append(f"**Summary:** {metadata['abstract_summary']}\n")
+        md_lines.append(f"**Tags:** {', '.join(metadata['tags'])}\n")
         md_lines.append("\n")
+
     md_output = "\n".join(md_lines)
     state["markdown"] = md_output
     return state
