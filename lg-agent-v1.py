@@ -33,17 +33,39 @@ llm = ChatOpenAI(
 def read_pdfs_node(state):
     pdf_dir = state["pdf_dir"]
     pdf_files = list(pathlib.Path(pdf_dir).rglob("*.pdf"))
+
+    exclude_paths = [
+        "mit_courseware",
+        "jason_brownlee_ebooks",
+        "textbooks",
+    ]
+
     papers = []
+    items = 1
     for pdf_file in pdf_files:
-        reader = PdfReader(str(pdf_file))
-        text = "\n".join(page.extract_text() for page in reader.pages if page.extract_text())
-        print(f"Extracted {len(text)} characters from {pdf_file}")
-        papers.append({
-            "file_path": str(pdf_file),
-            "text": text
-        })
+        relative_path = str(pdf_file.relative_to(pdf_dir)).lower()
+
+        # -- Exclude unwanted folders --
+        if any(exclude in relative_path for exclude in exclude_paths):
+            print(f"Skipping {relative_path} (excluded folder)")
+            continue
+
+        try:
+            reader = PdfReader(str(pdf_file))
+            text = "\n".join(page.extract_text() for page in reader.pages if page.extract_text())
+            papers.append({
+                "file_path": str(pdf_file),
+                "text": text
+            })
+            print(f"{items}: Extracted {len(text)} characters from {pdf_file}")
+            items += 1
+        except Exception as e:
+            print(f"Skipping {relative_path} (could not read PDF: {e})")
+            continue  # Skip corrupted or invalid PDFs
+
     state["papers"] = papers
     return state
+
 
 # -- Node 2: Extract Abstract and Tags --
 def analyze_papers_node(state):
