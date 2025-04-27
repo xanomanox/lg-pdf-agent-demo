@@ -19,7 +19,7 @@ class PDFState(TypedDict):
 
 # Set up OpenAI client to talk to text-generation-webui local API
 openai.api_key = "sk-xxx"  # dummy, not used
-openai.api_base =  "http://127.0.0.1:5000/v1/chat/completions"  # adjust if needed
+openai.api_base =  "http://127.0.0.1:5000/v1"  # adjust if needed
 openai.api_type = "openai"
 
 llm = ChatOpenAI(
@@ -59,6 +59,9 @@ def read_pdfs_node(state):
             })
             print(f"{items}: Extracted {len(text)} characters from {pdf_file}")
             items += 1
+            # TEST RUN
+            if items > 5:
+                break
         except Exception as e:
             print(f"Skipping {relative_path} (could not read PDF: {e})")
             continue  # Skip corrupted or invalid PDFs
