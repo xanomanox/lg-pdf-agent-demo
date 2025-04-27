@@ -96,7 +96,8 @@ def analyze_papers_node(state):
         response = llm.invoke(prompt)
         
         try:
-            metadata = json.loads(response.content)
+            cleaned_content = response.content.removeprefix("```json\n").removesuffix("```")
+            metadata = json.loads(cleaned_content)
         except json.JSONDecodeError:
             print(f"Warning: Failed to parse JSON for {paper['file_path']}")
             metadata = {
