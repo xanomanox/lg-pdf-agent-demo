@@ -11,21 +11,19 @@ The extracted metadata includes:
 - Generated tags categorizing the paper
 
 ## Dependencies
-This project requires the following Python packages:
-
-This project uses the following open-source libraries:
+This project requires the following packages:
 - [LangGraph](https://github.com/langchain-ai/langgraph) (MIT License)
 - [LangChain Core](https://github.com/langchain-ai/langchain) (MIT License)
 - [OpenAI Python Client](https://github.com/openai/openai-python) (MIT License)
 - [PyPDF](https://github.com/py-pdf/pypdf) (BSD-2-Clause License)
 
-The LangGraph agent expects a locally hosted model that serves an OpenAI-compatible API endpoint (e.g., text-generation-webui, Ollama, LM Studio).
+The LangGraph agent expects a locally hosted model served on an OpenAI-compatible API endpoint (e.g., text-generation-webui, Ollama, LM Studio).
 
 ## Environment
 I built and ran this langgraph demo using VSCode on WSL running Ubuntu 22.04. The model server ran on the same machine.
-Hardware: WSL in Windows 11 with two ancient RTX 2080 GPUs (8GB). 
-Model: https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF Q8_0
-Model Server: https://github.com/oobabooga/text-generation-webui v3.1
+- Hardware: WSL in Windows 11 with two ancient RTX 2080 GPUs (8GB). 
+- Model: https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF Q8_0
+- Model Server: https://github.com/oobabooga/text-generation-webui v3.1
 - manual install with conda
 - llama.cpp defaults`
 
